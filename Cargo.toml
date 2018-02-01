@@ -1,0 +1,23 @@
+[package]
+authors = ["Andrey Tkachenko <andreytkachenko64@gmail.com>"]
+name = "async_hal_stm32"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.3.1"
+cortex-m-rt = "0.3.9"
+
+[dependencies.futures]
+default-features = false
+version = "0.1.17"
+
+[dependencies.futures-await]
+default-features = false
+path = "../../futures-await"
+# git = "https://github.com/andreytkachenko/futures-await"
+
+[dependencies.async-hal]
+path = "../async-hal"
+
+[dependencies.opencm]
+path = "../opencm"
