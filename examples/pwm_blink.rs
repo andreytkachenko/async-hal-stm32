@@ -13,7 +13,6 @@ extern crate async_hal_stm32;
 extern crate opencm;
 
 use futures::prelude::*;
-use core::cell::Cell;
 
 use async_hal::hil::gpio::{
     AdvancedPin,
@@ -28,13 +27,18 @@ use self::async_hal_stm32::hal::{
 };
 
 #[async]
-fn task_pwm<'f, E>(period: u16, pin: &'f E, pwm: &'f Cell<u8>) -> Result<(), ()>
+fn task_pwm<'f, E>(period: u16, pin: &'f E) -> Result<(), ()>
     where E: BasicPin + 'f
 {   
     let mut interval = timer::interval_ms(100);
 
+    let mut pwm: i32 = 0;
+    let reload: u32 = 1;
+    let mut counter: u32 = reload;
+    let mut dir: i32 = 1;
+
     loop {
-        let duty = ((period as u32) * (pwm.get() as u32) >> 8) as u16;
+        let duty = ((period as u32) * (pwm as u32) >> 8) as u16;
 
         interval.set_interval_us(duty);
         await_item!(interval)?;
@@ -43,6 +47,20 @@ fn task_pwm<'f, E>(period: u16, pin: &'f E, pwm: &'f Cell<u8>) -> Result<(), ()>
         interval.set_interval_us(period - duty);
         await_item!(interval)?;
         pin.set_low();
+
+        if counter == 0 {
+            counter = reload;
+            
+            if pwm == 255 {
+                dir = -1;
+            } else if pwm == 0 {
+                dir = 1;
+            }
+
+            pwm += dir;
+        } else {
+            counter -= 1;
+        }
     }
 }
 
@@ -55,9 +73,7 @@ fn main() {
     blue.make_output();
     blue.set_output_speed(gpio::OutputSpeed::High);
 
-    let pwm = Cell::new(1u8);
-
     let _r = async_hal::reactor::run(
-        task_pwm(1000, &blue, &pwm)
+        task_pwm(1000, &blue)
     );
 }

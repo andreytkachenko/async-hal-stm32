@@ -48,7 +48,6 @@ fn task3<'f, E>(echo_pin: &'f E, pwm: &'f Cell<u8>) -> Result<(), ()>
     }
 }
 
-
 fn main() {
     rcc::set_clock(rcc::CrystalClock::Clock8MHz, rcc::Clock::Clock168MHz);
     timer::init();

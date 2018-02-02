@@ -10,6 +10,7 @@ extern crate cortex_m;
 extern crate cortex_m_rt;
 extern crate async_hal;
 extern crate async_hal_stm32;
+extern crate opencm;
 
 use futures::prelude::*;
 
@@ -37,5 +38,5 @@ fn main() {
 
     blue.make_output();
 
-    let _r = async_hal::reactor::run(task_blink(1000, &blue));
+    let _r = async_hal::reactor::run(task_blink(100, &blue));
 }

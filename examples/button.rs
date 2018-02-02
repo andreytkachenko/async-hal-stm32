@@ -19,29 +19,45 @@ use async_hal::hil::gpio::{
     Exti
 };
 
-use self::async_hal_stm32::hal::gpio;
+use self::async_hal_stm32::hal::{ gpio, timer };
 
 #[async]
 fn button_led<'f>(button: &'f gpio::Pin, led: &'f gpio::Pin) -> Result<(), ()>{
-    let exti = button.exti().unwrap();
-    let mut exti_stream = exti.stream();
+    let mut exti = button.exti().unwrap();
+    exti.trigger_on_rising();
 
     led.set_high();
 
     #[async]
-    for _ in exti_stream {
+    for _ in exti {
         led.toggle();
     }
 
     Ok(())
 }
 
+#[async]
+fn button_led_jitter<'f>(button: &'f gpio::Pin, led: &'f gpio::Pin) -> Result<(), ()> {
+    let mut exti = button.exti().unwrap();
+    exti.trigger_on_rising();
+    led.set_high();
+
+    loop {
+        await_item!(exti)?;
+        exti.trigger_off();
+        led.toggle();
+        await!(timer::timeout_ms(100))?;
+        exti.trigger_on_rising();
+    }
+}
+
 fn main() {
+    timer::init();
     let button = gpio::get_pin(0, 0);
     let blue = gpio::get_pin(3, 15);
 
     button.make_input();
     blue.make_output();
 
-    let _r = async_hal::reactor::run(button_led(&button, &blue));
+    let _r = async_hal::reactor::run(button_led_jitter(&button, &blue));
 }

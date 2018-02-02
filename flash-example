@@ -1,0 +1,18 @@
+if [ $# -eq 0 ]
+  then
+    echo "Please specify the example name";
+  else
+    if [ "$2" == "--release" ]; then
+      echo "building RELEASE";
+      xargo build --example=$1 --release
+      arm-none-eabi-objcopy -O binary target/thumbv7em-none-eabi/release/examples/$1 target/thumbv7em-none-eabi/release/$1.bin
+      echo "flashing binary ./target/thumbv7em-none-eabi/release/$1.bin"
+      st-flash write ./target/thumbv7em-none-eabi/release/$1.bin 0x8000000
+    else
+      echo "building DEBUG";
+      xargo build --example=$1
+      arm-none-eabi-objcopy -O binary target/thumbv7em-none-eabi/debug/examples/$1 target/thumbv7em-none-eabi/debug/$1.bin
+      echo "flashing binary ./target/thumbv7em-none-eabi/debug/$1.bin"
+      st-flash write ./target/thumbv7em-none-eabi/debug/$1.bin 0x8000000
+    fi;
+fi;
