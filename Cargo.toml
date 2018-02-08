@@ -13,11 +13,10 @@ version = "0.1.17"
 
 [dependencies.futures-await]
 default-features = false
-path = "../../futures-await"
-# git = "https://github.com/andreytkachenko/futures-await"
+git = "https://github.com/andreytkachenko/futures-await"
 
 [dependencies.async-hal]
-path = "../async-hal"
+git = "https://github.com/andreytkachenko/async-hal"
 
 [dependencies.opencm]
-path = "../opencm"
+git = "https://github.com/andreytkachenko/opencm"
